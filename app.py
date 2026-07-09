@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for, flash
 import joblib
 import numpy as np
 import random
 import sklearn
 import sklearn.ensemble
-from database import init_db, save_prediction, get_all_records, get_latest_status_by_cow, get_all_cows, add_cow_profile, update_cow_profile, delete_cow_profile
+from database import init_db, save_prediction, get_all_records, get_latest_status_by_cow, get_all_cows, add_cow_profile, update_cow_profile, delete_cow_profile, check_password, update_password
 from rules import analyze_cattle_activity
 import os
 from werkzeug.utils import secure_filename
@@ -40,6 +40,42 @@ if os.path.exists(MODEL_PATH):
 
 # Baza yaratish
 init_db()
+
+app.secret_key = 'cattle_activ_super_secret_key'
+
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'static', 'serve_manifest', 'serve_sw', 'serve_uploads']
+    if request.endpoint not in allowed_routes and 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if check_password(password):
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error="Parol noto'g'ri!")
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if request.method == 'POST':
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        if check_password(old_password):
+            update_password(new_password)
+            return render_template('settings.html', success="Parol muvaffaqiyatli o'zgartirildi!")
+        else:
+            return render_template('settings.html', error="Eski parol noto'g'ri!")
+    return render_template('settings.html')
 
 @app.route('/')
 def index():

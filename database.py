@@ -65,6 +65,18 @@ def init_db():
             cursor.execute('INSERT INTO cows_profile (cow_id, breed, age, weight, milk_yield, image_filename) VALUES (?, ?, ?, ?, ?, ?)', 
                            (i, breed, age, weight, milk, img_name))
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS admin_settings (
+            id INTEGER PRIMARY KEY,
+            password TEXT NOT NULL
+        )
+    ''')
+    
+    # Check if empty, set default password
+    cursor.execute('SELECT COUNT(*) FROM admin_settings')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('INSERT INTO admin_settings (id, password) VALUES (1, "admin123")')
+
     conn.commit()
     conn.close()
 
@@ -162,3 +174,21 @@ def delete_cow_profile(cow_id):
 if __name__ == '__main__':
     init_db()
     print("Yangi ma'lumotlar bazasi va jadvallar muvaffaqiyatli yaratildi/yangilandi.")
+
+def check_password(password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT password FROM admin_settings WHERE id = 1')
+    row = cursor.fetchone()
+    conn.close()
+    if row and row['password'] == password:
+        return True
+    return False
+
+def update_password(new_password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE admin_settings SET password = ? WHERE id = 1', (new_password,))
+    conn.commit()
+    conn.close()
+    return True

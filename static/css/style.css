@@ -591,3 +591,31 @@ select:focus {
         flex-grow: 1 !important;
         min-height: 0;
     }
+}
+
+/* Telefon uchun qulaylashtirish (Responsive Fixes) */
+@media (max-width: 768px) {
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .nav-links a {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+    .dark-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .welcome-header h1 {
+        font-size: 1.8rem !important;
+    }
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    input[type="number"], input[type="text"], select {
+        font-size: 16px !important; /* iOS da yaqinlashib qolishini oldini oladi */
+    }
+}
