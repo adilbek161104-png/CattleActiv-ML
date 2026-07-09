@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qoramollar Bazasi | CattleActiv-ML</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#198754">
+    <link rel="apple-touch-icon" href="/static/img/app_icon_192.png">
+    <style>
+        .cow-database-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .cow-profile-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .cow-profile-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.2);
+        }
+
+        .cow-img-wrapper {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cow-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cow-status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+        
+        .badge-healthy {
+            background: rgba(16, 185, 129, 0.8);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .badge-sick {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .cow-profile-info {
+            padding: 1.5rem;
+        }
+
+        .cow-profile-info h3 {
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .cow-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .cow-detail strong {
+            color: var(--text-main);
+        }
+    </style>
+    <style>
+        .cow-profile-card { position: relative; }
+        .cow-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .cow-actions button {
+            background: rgba(0,0,0,0.5);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .cow-actions button:hover { background: rgba(0,0,0,0.8); }
+        .btn-edit:hover { color: var(--warning-color) !important; }
+        .btn-delete:hover { color: var(--danger-color) !important; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--panel-bg); padding: 2rem; border-radius: 12px;
+            width: 400px; max-width: 90%; border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        /* Large View Modal Styles */
+        #viewCowModal .modal-content {
+            width: 800px; max-width: 95%;
+            display: flex; gap: 2rem;
+        }
+        @media (max-width: 768px) {
+            #viewCowModal .modal-content { flex-direction: column; }
+        }
+        .view-cow-left {
+            flex: 1; text-align: center;
+        }
+        .view-cow-left img {
+            width: 100%; max-width: 300px; border-radius: 12px;
+            border: 2px solid var(--primary-color);
+        }
+        .view-cow-right {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+        }
+        .view-cow-detail {
+            font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;
+        }
+        .view-cow-detail span { color: var(--text-muted); display: inline-block; width: 150px; }
+        .view-cow-detail strong { color: var(--text-main); }
+        .close-modal-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(239, 68, 68, 0.2); color: var(--danger-color);
+            border: none; width: 40px; height: 40px; border-radius: 50%;
+            font-size: 1.5rem; cursor: pointer; transition: 0.3s;
+        }
+        .close-modal-btn:hover { background: var(--danger-color); color: white; }
+        
+        #viewCowModal .cow-status-badge {
+            position: static !important;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            padding: 8px 15px;
+        }
+
+        .cow-profile-card { cursor: pointer; transition: transform 0.3s; }
+        .cow-profile-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3); }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="navbar">
+        <div class="logo"><i class="fas fa-satellite-dish"></i> CattleActiv-ML</div>
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-plus-circle"></i> <span data-i18n="nav_add">Yangi Mol Qo'shish</span></a>
+            <a href="/sensor_input"><i class="fas fa-desktop"></i> <span data-i18n="nav_sensor">Sensor Input</span></a>
+            <a href="/dashboard"><i class="fas fa-chart-line"></i> <span data-i18n="nav_analytics">Analytics & AI Chat</span></a>
+            <a href="/cows" class="active"><i class="fas fa-paw"></i> <span data-i18n="nav_base">Qoramollar Bazasi</span></a>
+            
+            <a href="/ai_diagnosis"><i class="fas fa-stethoscope"></i> <span data-i18n="nav_ai_diag">AI Diagnostika</span></a>
+            <select id="langSwitch" class="modern-select">
+                <option value="uz">O'zbek</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="qq">Qaraqalpaq</option>
+            </select>
+            <a href="/about"><i class="fas fa-info-circle"></i> <span data-i18n="nav_about">Sayt Haqida</span></a>
+        </div>
+    </div>
+
+    <div class="container dashboard-container">
+        <div class="header-section">
+            <h2><span data-i18n="cows_title">Qoramollar Profil Bazasi</span> <span class="live-indicator"><span class="dot pulse"></span> LIVE SYNC</span></h2>
+            <p class="subtitle" data-i18n="cows_subtitle">Barcha ro\'yxatdan o\'tgan qoramollarning umumiy holati (Jiltirbas hududi)</p>
+        </div>
+
+        <div class="cow-database-grid" id="databaseGrid">
+            <!-- Loading -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i> <span data-i18n="cows_loading">Ma'lumotlar yuklanmoqda...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Large Modal -->
+    <div id="viewCowModal" class="modal-overlay" onclick="if(event.target === this) closeViewModal()">
+        <div class="modal-content">
+            <button class="close-modal-btn" onclick="closeViewModal()"><i class="fas fa-times"></i></button>
+            <div class="view-cow-left">
+                <img id="view_cow_img" src="" alt="Cow Image">
+                <div id="view_cow_status" style="margin-top: 1rem; font-size: 1.2rem; font-weight: bold; padding: 10px; border-radius: 8px;"></div>
+            </div>
+            <div class="view-cow-right">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 2rem;"><i class="fas fa-tag"></i> <span data-i18n="cows_cow_num">Cow</span> #<span id="view_cow_id"></span></h2>
+                <div class="view-cow-detail"><span data-i18n="cows_breed">Zoti:</span> <strong id="view_cow_breed"></strong></div>
+                <div class="view-cow-detail"><span data-i18n="cows_age">Yoshi:</span> <strong id="view_cow_age"></strong> <span data-i18n="cows_age_yrs">yosh</span></div>
+                <div class="view-cow-detail"><span data-i18n="cows_weight">Vazni (kg):</span> <strong id="view_cow_weight"></strong> kg</div>
+                <div class="view-cow-detail"><span data-i18n="cows_milk">Sog'in (litr):</span> <strong id="view_cow_milk"></strong> L</div>
+                
+                <h3 style="margin-top: 1rem; color: var(--text-muted);"><i class="fas fa-heartbeat"></i> <span data-i18n="cows_live_sensor">Live Sensor Data</span></h3>
+                <div class="view-cow-detail" style="font-size: 1rem; margin-top: 0.5rem;"><span data-i18n="cows_temp">Harorat:</span> <strong id="view_cow_temp"></strong></div>
+                <div class="view-cow-detail" style="font-size: 1rem;"><span data-i18n="cows_rum">Chaynash:</span> <strong id="view_cow_rum"></strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary-color);"><i class="fas fa-edit"></i> <span data-i18n="cows_edit_title">Qoramolni Tahrirlash</span></h2>
+            <form id="editCowForm" class="iot-form" enctype="multipart/form-data">
+                <input type="hidden" id="edit_cow_id" name="cow_id">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label data-i18n="cows_breed">Zoti:</label>
+                    <select id="edit_cow_breed" name="breed" class="modern-select" style="width: 100%;">
+                        <option value="Golshteyn">Golshteyn</option>
+                        <option value="Angus">Angus</option>
+                        <option value="Simmental">Simmental</option>
+                        <option value="Qizil cho'l">Qizil cho'l</option>
+                        <option value="Aralash">Aralash</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label data-i18n="cows_age">Yoshi:</label>
+                    <input type="number" id="edit_cow_age" name="age" required min="1" max="20" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label data-i18n="cows_weight">Vazni (kg):</label>
+                    <input type="number" id="edit_cow_weight" name="weight" required min="100" max="1500" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label data-i18n="cows_milk">Sog\'in (litr):</label>
+                    <input type="number" id="edit_cow_milk" name="milk_yield" min="0" max="50" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label data-i18n="cows_new_img">Yangi Rasm (ixtiyoriy):</label>
+                    <input type="file" id="edit_cow_image" name="image" accept="image/*" class="modern-select" style="width: 100%;">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" onclick="closeEditModal()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: white;" data-i18n="cows_cancel">Bekor qilish</button>
+                    <button type="submit" class="btn primary-btn" data-i18n="cows_save">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCowsData();
+            // Har 5 soniyada yangilab turish
+            setInterval(fetchCowsData, 5000);
+        });
+
+        async function fetchCowsData() {
+            try {
+                const profileRes = await fetch('/api/cows');
+                const profileData = await profileRes.json();
+                
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                
+                if (profileData.success && profileData.cows) {
+                    renderCowsDatabase(profileData.cows, data.latest_cows || []);
+                }
+            } catch (error) {
+                console.error("Xatolik:", error);
+            }
+        }
+
+        
+        const t = (key) => {
+            const lang = localStorage.getItem('appLang') || 'uz';
+            return typeof translations !== 'undefined' && translations[lang] && translations[lang][key] ? translations[lang][key] : key;
+        };
+
+        function renderCowsDatabase(cowProfiles, liveData) {
+            const grid = document.getElementById('databaseGrid');
+            grid.innerHTML = '';
+
+            if (cowProfiles.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">' + t("cows_empty") + '</div>';
+                return;
+            }
+
+            cowProfiles.forEach((profile, index) => {
+                const cowData = liveData.find(c => String(c.cow_id) === String(profile.cow_id));
+                
+                let imgSrc = '/static/img/cow1.png';
+                if (profile.image_filename) {
+                    if (profile.image_filename.startsWith('uploads/')) {
+                        imgSrc = `/${profile.image_filename}`;
+                    } else {
+                        imgSrc = `/static/img/${profile.image_filename}`;
+                    }
+                }
+                let statusHtml = '<div class="cow-status-badge" style="background: rgba(100,100,100,0.8)">' + t("cows_status_no_data") + '</div>';
+                let statsHtml = `
+                    <div class="cow-detail"><span>${t("cows_breed")}</span> <strong>${t(profile.breed)}</strong></div>
+                    <div class="cow-detail"><span>${t("cows_age")}</span> <strong>${profile.age} ${t("cows_age_yrs")}</strong></div>
+                    <div class="cow-detail"><span>${t("cows_weight")}</span> <strong>${profile.weight} kg</strong></div>
+                    <div class="cow-detail"><span>${t("cows_milk")}</span> <strong>${profile.milk_yield} L</strong></div>
+                `;
+
+                if (cowData) {
+                    const isSick = cowData.ml_prediction !== "Normal";
+                    const badgeClass = isSick ? "badge-sick" : "badge-healthy";
+                    const statusText = isSick ? t(cowData.ml_prediction) : t("cows_status_healthy");
+                    const icon = isSick ? '<i class="fas fa-exclamation-triangle"></i>' : '<i class="fas fa-check-circle"></i>';
+                    
+                    statusHtml = `<div class="cow-status-badge ${badgeClass}">${icon} ${statusText}</div>`;
+                }
+
+                // Event obj to pass safely
+                const safeProfile = JSON.stringify(profile).replace(/'/g, "&apos;");
+                const safeCowData = cowData ? JSON.stringify(cowData).replace(/'/g, "&apos;") : "null";
+
+                const cardHtml = `
+                    <div class="cow-profile-card" onclick='openViewModal(${safeProfile}, ${safeCowData}, "${imgSrc}")'>
+                        <div class="cow-actions">
+                            <button class="btn-edit" onclick='event.stopPropagation(); openEditModal(${safeProfile})' title="Tahrirlash"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick='event.stopPropagation(); deleteCow(${profile.cow_id})' title="O'chirish"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div class="cow-img-wrapper">
+                            <img src="${imgSrc}" alt="Cow #${profile.cow_id}">
+                            ${statusHtml}
+                        </div>
+                        <div class="cow-profile-info">
+                            <h3><i class="fas fa-tag"></i> ${t("cows_cow_num")} #${profile.cow_id} ${t("cows_profile")}</h3>
+                            ${statsHtml}
+                        </div>
+                    </div>
+                `;
+                
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // View Modal Functions
+        function openViewModal(profile, cowData, imgSrc) {
+            document.getElementById('view_cow_id').innerText = profile.cow_id;
+            document.getElementById('view_cow_img').src = imgSrc;
+            document.getElementById('view_cow_breed').innerText = t(profile.breed);
+            document.getElementById('view_cow_age').innerText = profile.age;
+            document.getElementById('view_cow_weight').innerText = profile.weight;
+            document.getElementById('view_cow_milk').innerText = profile.milk_yield;
+            
+            let statusHtml = '<div class="cow-status-badge" style="background: rgba(100,100,100,0.8)">' + t("cows_status_no_data") + '</div>';
+            if (cowData) {
+                const isSick = cowData.ml_prediction !== "Normal";
+                const badgeClass = isSick ? "badge-sick" : "badge-healthy";
+                const statusText = isSick ? t(cowData.ml_prediction) : t("cows_status_healthy");
+                const icon = isSick ? '<i class="fas fa-exclamation-triangle"></i>' : '<i class="fas fa-check-circle"></i>';
+                statusHtml = `<div class="cow-status-badge ${badgeClass}">${icon} ${statusText}</div>`;
+                
+                document.getElementById('view_cow_temp').innerText = cowData.temperature + " °C";
+                document.getElementById('view_cow_rum').innerText = cowData.rumination_minutes + " " + t("cows_mins");
+            } else {
+                document.getElementById('view_cow_temp').innerText = t('cows_status_no_data');
+                document.getElementById('view_cow_rum').innerText = t('cows_status_no_data');
+            }
+            
+            document.getElementById('view_cow_status').innerHTML = statusHtml;
+
+            document.getElementById('viewCowModal').style.display = 'flex';
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewCowModal').style.display = 'none';
+        }
+
+        // Edit Modal Functions
+        function openEditModal(profile) {
+            document.getElementById('edit_cow_id').value = profile.cow_id;
+            document.getElementById('edit_cow_breed').value = profile.breed;
+            document.getElementById('edit_cow_age').value = profile.age;
+            document.getElementById('edit_cow_weight').value = profile.weight;
+            document.getElementById('edit_cow_milk').value = profile.milk_yield;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editCowForm').reset();
+        }
+
+        document.getElementById('editCowForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const cow_id = formData.get('cow_id');
+            
+            try {
+                const response = await fetch(`/api/update_cow/${cow_id}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    Toastify({ text: "Muaffaqiyatli yangilandi!", style: {background: "var(--success-color)"} }).showToast();
+                    closeEditModal();
+                    fetchCowsData(); // re-render
+                } else {
+                    Toastify({ text: "Xato: " + result.message, style: {background: "var(--danger-color)"} }).showToast();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // Delete Function
+        async function deleteCow(cow_id) {
+            if (confirm(`Siz rostan ham Cow #${cow_id} ni tizimdan butunlay o'chirmoqchimisiz?`)) {
+                try {
+                    const response = await fetch(`/api/delete_cow/${cow_id}`, { method: 'DELETE' });
+                    const result = await response.json();
+                    if (result.success) {
+                        Toastify({ text: "Qoramol o'chirildi!", style: {background: "var(--success-color)"} }).showToast();
+                        fetchCowsData(); // re-render
+                    } else {
+                        Toastify({ text: "Xato: " + result.message, style: {background: "var(--danger-color)"} }).showToast();
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    </script>
+    
+    <!-- Language Support -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lang.js') }}"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+</body>
+</html>

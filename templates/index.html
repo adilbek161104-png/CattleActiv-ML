@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yangi Qoramol Qo'shish | CattleActiv-ML 2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#198754">
+    <link rel="apple-touch-icon" href="/static/img/app_icon_192.png">
+</head>
+<body class="dark-theme">
+
+    
+    <div class="navbar">
+        <div class="logo"><i class="fas fa-satellite-dish"></i> CattleActiv-ML</div>
+        <div class="nav-links">
+            <a href="/" class="active"><i class="fas fa-plus-circle"></i> <span data-i18n="nav_add">Yangi Mol Qo'shish</span></a>
+            <a href="/sensor_input"><i class="fas fa-desktop"></i> <span data-i18n="nav_sensor">Sensor Input</span></a>
+            <a href="/dashboard"><i class="fas fa-chart-line"></i> <span data-i18n="nav_analytics">Analytics & AI Chat</span></a>
+            <a href="/cows"><i class="fas fa-paw"></i> <span data-i18n="nav_base">Qoramollar Bazasi</span></a>
+            
+            <a href="/ai_diagnosis"><i class="fas fa-stethoscope"></i> <span data-i18n="nav_ai_diag">AI Diagnostika</span></a>
+            <select id="langSwitch" class="modern-select">
+                <option value="uz">O'zbek</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="qq">Qaraqalpaq</option>
+            </select>
+            <a href="/about"><i class="fas fa-info-circle"></i> <span data-i18n="nav_about">Sayt Haqida</span></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Chiroyli Sarlavha / Welcome Header -->
+        <div class="welcome-header">
+            <h1 style="color: var(--primary-color); font-size: 2.8rem; margin-bottom: 1rem; text-shadow: 0 0 15px var(--primary-glow);"><i class="fas fa-satellite-dish"></i> <span data-i18n="welcome_title">CattleActiv-ML</span></h1>
+            <p style="color: var(--text-main); font-size: 1.2rem; max-width: 600px; margin: 0 auto; line-height: 1.6;" data-i18n="welcome_desc">AI va IoT texnologiyalari yordamida qoramollar sog'lig'ini masofadan nazorat qilishning zamonaviy platformasi.</p>
+        </div>
+
+        <!-- Yangi Qoramol Qo'shish -->
+        <div class="card iot-panel" style="margin-bottom: 2rem; border-color: var(--primary-color);">
+            <div class="panel-header">
+                <h2><i class="fas fa-plus-circle" style="color: var(--primary-color);"></i> <span data-i18n="add_cow_title">Yangi Qoramol Qo'shish</span></h2>
+                <div class="status-indicator">
+                    <span class="dot" style="background: var(--primary-color);"></span> <span data-i18n="db_sync">Database Sync</span>
+                </div>
+            </div>
+            
+            <form id="addCowForm" class="iot-form" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> <span data-i18n="label_id">Yangi Cow ID:</span></label>
+                        <input type="number" id="new_cow_id" name="cow_id" required min="1" placeholder="Masalan: 11" data-i18n="placeholder_id">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-dna"></i> <span data-i18n="label_breed">Zoti:</span></label>
+                        <select id="new_cow_breed" name="breed" class="modern-select" style="width: 100%; border-radius: 8px;">
+                            <option value="Golshteyn">Golshteyn</option>
+                            <option value="Angus">Angus</option>
+                            <option value="Simmental">Simmental</option>
+                            <option value="Qizil cho'l">Qizil cho'l</option>
+                            <option value="Aralash">Aralash</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> <span data-i18n="label_age">Yoshi:</span></label>
+                        <input type="number" id="new_cow_age" name="age" required min="1" max="20" placeholder="Masalan: 3" data-i18n="placeholder_age">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-weight"></i> <span data-i18n="label_weight">Vazni (kg):</span></label>
+                        <input type="number" id="new_cow_weight" name="weight" required min="100" max="1500" placeholder="Masalan: 450" data-i18n="placeholder_weight">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-glass-whiskey"></i> <span data-i18n="label_milk">Sog'in (litr/kun):</span></label>
+                        <input type="number" id="new_cow_milk" name="milk_yield" min="0" max="50" placeholder="Masalan: 15 (Ixtiyoriy)" data-i18n="placeholder_milk">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-camera"></i> <span data-i18n="label_img">Qoramol Rasmi:</span></label>
+                        <input type="file" id="new_cow_image" name="image" accept="image/*" class="modern-select" style="padding: 0.6rem; width: 100%; box-sizing: border-box;">
+                    </div>
+                </div>
+                <button type="submit" class="btn primary-btn" style="background: var(--primary-color); box-shadow: 0 4px 15px var(--primary-glow);"><i class="fas fa-save"></i> <span data-i18n="btn_add_db">Baza va Xaritaga Qo'shish</span></button>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Language Support -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lang.js') }}"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+</body>
+</html>
