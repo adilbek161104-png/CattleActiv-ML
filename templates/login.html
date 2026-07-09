@@ -15,23 +15,27 @@
 </head>
 <body class="dark-theme">
     <div class="login-box">
-        <h2>CattleActiv-ML</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Tizimga kirish uchun malumotlarni kiriting</p>
+        <h2 data-i18n="login_title">CattleActiv-ML</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;" data-i18n="login_desc">Tizimga kirish uchun malumotlarni kiriting</p>
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}
         <form method="POST" style="text-align: left;">
             <div style="margin-bottom: 15px;">
-                <label style="color: var(--text-muted);">Login:</label>
+                <label style="color: var(--text-muted);" data-i18n="login_user">Login:</label>
                 <input type="text" name="username" placeholder="Loginni kiriting" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 16px;">
             </div>
             <div style="margin-bottom: 20px;">
-                <label style="color: var(--text-muted);">Parol:</label>
+                <label style="color: var(--text-muted);" data-i18n="login_pass">Parol:</label>
                 <input type="password" name="password" placeholder="Parolni kiriting" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 16px;">
             </div>
-            <button type="submit" class="btn primary-btn" style="width: 100%;">Kirish</button>
+            <button type="submit" class="btn primary-btn" style="width: 100%;"><span data-i18n="login_btn">Kirish</span></button>
         </form>
         <p style="color: #666; font-size: 14px; margin-top: 20px;">Birlamchi login: <b>admin</b> | parol: <b>admin123</b></p>
     </div>
+
+    <!-- Language script -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lang.js') }}"></script>
 </body>
 </html>

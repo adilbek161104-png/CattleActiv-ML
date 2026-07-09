@@ -18,7 +18,7 @@
 </head>
 <body class="dark-theme">
     <div class="settings-box">
-        <h2>Sozlamalar</h2>
+        <h2 data-i18n="settings_title">Sozlamalar</h2>
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}
@@ -26,22 +26,22 @@
             <div class="success">{{ success }}</div>
         {% endif %}
         <form method="POST" style="text-align: left;">
-            <h3 style="color: white; margin-bottom: 15px; font-size: 1.2rem;">Parolni O'zgartirish</h3>
+            <h3 style="color: white; margin-bottom: 15px; font-size: 1.2rem;" data-i18n="settings_pass_change">Parolni O'zgartirish</h3>
             <div style="margin-bottom: 15px;">
-                <label style="color: var(--text-muted);">Eski parol:</label>
+                <label style="color: var(--text-muted);" data-i18n="settings_old_pass">Eski parol:</label>
                 <input type="password" name="old_password" placeholder="Eski parolni kiriting" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 16px;">
             </div>
             <div style="margin-bottom: 20px;">
-                <label style="color: var(--text-muted);">Yangi parol:</label>
+                <label style="color: var(--text-muted);" data-i18n="settings_new_pass">Yangi parol:</label>
                 <input type="password" name="new_password" placeholder="Yangi parol yarating" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 16px;">
             </div>
-            <button type="submit" class="btn primary-btn" style="width: 100%;">Saqlash</button>
+            <button type="submit" class="btn primary-btn" style="width: 100%;"><span data-i18n="settings_save">Saqlash</span></button>
         </form>
 
         <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
         <div style="text-align: left;">
-            <h3 style="color: white; margin-bottom: 15px; font-size: 1.2rem;">Tilni Tanlash</h3>
+            <h3 style="color: white; margin-bottom: 15px; font-size: 1.2rem;" data-i18n="settings_lang">Tilni Tanlash</h3>
             <select id="langSwitch" class="modern-select" style="width: 100%; padding: 12px;">
                 <option value="uz">O'zbek</option>
                 <option value="ru">Русский</option>
@@ -50,7 +50,7 @@
             </select>
         </div>
 
-        <a href="/" class="back-link">← Bosh sahifaga qaytish</a>
+        <a href="/" class="back-link" data-i18n="settings_back">← Bosh sahifaga qaytish</a>
     </div>
 
     <!-- Language script works here too -->
