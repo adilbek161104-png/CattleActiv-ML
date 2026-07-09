@@ -19,16 +19,14 @@
             <a href="/cows"><i class="fas fa-paw"></i> <span data-i18n="nav_base">Qoramollar Bazasi</span></a>
             
             <a href="/ai_diagnosis" class="active"><i class="fas fa-stethoscope"></i> <span data-i18n="nav_ai_diag">AI Diagnostika</span></a>
-            <select id="langSwitch" class="modern-select">
-                <option value="uz">O'zbek</option>
-                <option value="ru">Русский</option>
-                <option value="en">English</option>
-                <option value="qq">Qaraqalpaq</option>
-            </select>
+            
+            
+            
+
+            <a href="/about"><i class="fas fa-info-circle"></i> <span data-i18n="nav_about">Sayt Haqida</span></a>
             <a href="/settings"><i class="fas fa-cog"></i> <span data-i18n="nav_settings">Sozlamalar</span></a>
             <a href="/logout" style="background: #ef4444;"><i class="fas fa-sign-out-alt"></i> <span data-i18n="nav_logout">Chiqish</span></a>
 
-            <a href="/about"><i class="fas fa-info-circle"></i> <span data-i18n="nav_about">Sayt Haqida</span></a>
         </div>
     </div>
 
@@ -57,8 +55,8 @@
                         <option value="leykoz" data-i18n="diag_select_leykoz">👁️ 9. Leykoz</option>
                         <option value="telyazioz" data-i18n="diag_select_telyazioz">💧 10. Telyazioz (Ko'z qurti)</option>
                     </select>
-            <a href="/settings"><i class="fas fa-cog"></i> <span data-i18n="nav_settings">Sozlamalar</span></a>
-            <a href="/logout" style="background: #ef4444;"><i class="fas fa-sign-out-alt"></i> <span data-i18n="nav_logout">Chiqish</span></a>
+            
+            
 
                     <input type="text" id="symptomInput" class="modern-select" style="flex: 1; border-radius: 8px; font-size: 1rem;" placeholder="Kasallik belgilarini yozing..." data-i18n="diag_placeholder">
                     <button class="btn chat-btn" onclick="askSymptomAi()" style="border-radius: 8px; background: #065f46; color: white; border: 1px solid #047857; padding: 0 1.5rem; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"><i class="fas fa-paper-plane"></i> <span data-i18n="diag_ask">So'rash</span></button>

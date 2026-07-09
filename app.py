@@ -4,7 +4,7 @@ import numpy as np
 import random
 import sklearn
 import sklearn.ensemble
-from database import init_db, save_prediction, get_all_records, get_latest_status_by_cow, get_all_cows, add_cow_profile, update_cow_profile, delete_cow_profile, check_password, update_password
+from database import init_db, save_prediction, get_all_records, get_latest_status_by_cow, get_all_cows, add_cow_profile, update_cow_profile, delete_cow_profile, check_credentials, check_password, update_password
 from rules import analyze_cattle_activity
 import os
 from werkzeug.utils import secure_filename
@@ -52,12 +52,13 @@ def require_login():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        username = request.form.get('username')
         password = request.form.get('password')
-        if check_password(password):
+        if check_credentials(username, password):
             session['logged_in'] = True
             return redirect(url_for('index'))
         else:
-            return render_template('login.html', error="Parol noto'g'ri!")
+            return render_template('login.html', error="Login yoki parol noto'g'ri!")
     return render_template('login.html')
 
 @app.route('/logout')

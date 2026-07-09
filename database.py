@@ -68,14 +68,20 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS admin_settings (
             id INTEGER PRIMARY KEY,
+            username TEXT NOT NULL DEFAULT 'admin',
             password TEXT NOT NULL
         )
     ''')
     
+    try:
+        cursor.execute('ALTER TABLE admin_settings ADD COLUMN username TEXT NOT NULL DEFAULT "admin"')
+    except sqlite3.OperationalError:
+        pass # Column already exists
+    
     # Check if empty, set default password
     cursor.execute('SELECT COUNT(*) FROM admin_settings')
     if cursor.fetchone()[0] == 0:
-        cursor.execute('INSERT INTO admin_settings (id, password) VALUES (1, "admin123")')
+        cursor.execute('INSERT INTO admin_settings (id, username, password) VALUES (1, "admin", "admin123")')
 
     conn.commit()
     conn.close()
@@ -174,6 +180,16 @@ def delete_cow_profile(cow_id):
 if __name__ == '__main__':
     init_db()
     print("Yangi ma'lumotlar bazasi va jadvallar muvaffaqiyatli yaratildi/yangilandi.")
+
+def check_credentials(username, password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT username, password FROM admin_settings WHERE id = 1')
+    row = cursor.fetchone()
+    conn.close()
+    if row and row['username'] == username and row['password'] == password:
+        return True
+    return False
 
 def check_password(password):
     conn = get_db_connection()
